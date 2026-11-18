@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: homestay
+      POSTGRES_USER: homestay
+      POSTGRES_PASSWORD: homestay_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - homestay-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homestay -d homestay"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  homestay-postgres:

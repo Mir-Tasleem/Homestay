@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class PersistentBookingService {
@@ -35,8 +37,10 @@ public class PersistentBookingService {
         }
         AppUser guest = users.findById(guestId)
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User account no longer exists"));
+        long nights = ChronoUnit.DAYS.between(request.checkIn(), request.checkOut());
+        BigDecimal total = property.getNightlyRate().multiply(BigDecimal.valueOf(nights));
         return BookingResponse.from(bookings.save(new BookingEntity(property, guest,
-                request.checkIn(), request.checkOut(), request.guestCount())));
+                request.checkIn(), request.checkOut(), request.guestCount(), total)));
     }
 
     @Transactional(readOnly = true)

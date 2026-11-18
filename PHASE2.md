@@ -1,15 +1,18 @@
 # Phase 2 API
 
-The backend uses Spring MVC, Spring Data JPA, Hibernate, H2 by default, and JWT bearer tokens. H2 is an in-memory development database; set `DATABASE_URL`, `DATABASE_USERNAME`, and `DATABASE_PASSWORD` to connect another database. Set `DDL_AUTO` appropriately for the selected environment.
+The backend uses Spring MVC, Spring Data JPA, Hibernate, PostgreSQL, Flyway migrations, HikariCP, and JWT bearer tokens. Set `DATABASE_URL`, `DATABASE_USERNAME`, and `DATABASE_PASSWORD` to connect another database. Hibernate validates the schema created by Flyway.
 
 `JWT_SECRET` is required at startup and must contain at least 32 UTF-8 bytes. For local development, generate one with `openssl rand -base64 48` and export it before starting the app. Do not commit the secret. Access tokens expire after one hour by default (`app.jwt.expiration`).
 
 ## Start
 
 ```sh
+docker compose up -d postgres
 export JWT_SECRET="$(openssl rand -base64 48)"
 ./mvnw spring-boot:run
 ```
+
+The Compose file starts a local development database. Change its credentials before using a non-local deployment. Run tests with `./mvnw test`; PostgreSQL integration tests use Testcontainers and skip when Docker is unavailable.
 
 ## Routes
 
@@ -28,7 +31,7 @@ export JWT_SECRET="$(openssl rand -base64 48)"
 | GET | `/api/v1/bookings/my-bookings?page=0&size=20` | Bearer token |
 | PUT | `/api/v1/bookings/{id}/cancel` | Booking guest only |
 
-Registration and login return an access token. Send it as `Authorization: Bearer <accessToken>` to protected routes. Error responses use JSON with `timestamp`, `status`, `error`, and `message`. Health is available at `/actuator/health`.
+Property create/update request bodies include `name`, `description`, `city`, `maxGuests`, and `nightlyRate`. Registration and login return an access token. Send it as `Authorization: Bearer <accessToken>` to protected routes. Error responses use JSON with `timestamp`, `status`, `error`, and `message`. Health is available at `/actuator/health`.
 
 ## Booking consistency
 

@@ -24,7 +24,7 @@ public class PropertyService {
     public PropertyResponse create(UUID userId, PropertyRequest request) {
         AppUser owner = user(userId);
         return PropertyResponse.from(properties.save(new PropertyEntity(owner, clean(request.name()),
-                clean(request.city()), request.maxGuests(), request.nightlyRate())));
+                clean(request.description()), clean(request.city()), request.maxGuests(), request.nightlyRate())));
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +42,8 @@ public class PropertyService {
     public PropertyResponse update(UUID userId, UUID id, PropertyRequest request) {
         PropertyEntity property = property(id);
         requireOwner(userId, property);
-        property.update(clean(request.name()), clean(request.city()), request.maxGuests(), request.nightlyRate());
+        property.update(clean(request.name()), clean(request.description()), clean(request.city()),
+                request.maxGuests(), request.nightlyRate());
         return PropertyResponse.from(property);
     }
 
